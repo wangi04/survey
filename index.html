@@ -1,0 +1,1062 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>국립한국교통대학교 설문조사 플랫폼</title>
+<style>
+:root {
+  --primary: #901b01;
+  --primary-light: #b52202;
+  --primary-pale: #fdf0ed;
+  --primary-dark: #6b1401;
+  --accent: #ff6b35;
+  --bg: #f5f5f7;
+  --white: #ffffff;
+  --text: #1a1a1a;
+  --text-sub: #6e6e73;
+  --border: #e5e5ea;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 14px rgba(0,0,0,0.07);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,'Apple SD Gothic Neo','Pretendard','Noto Sans KR',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* NAV */
+.nav {
+  background:white; padding:0 20px; height:58px;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid var(--border); position:sticky; top:0; z-index:50;
+  box-shadow:0 1px 8px rgba(0,0,0,0.06);
+}
+.nav-logo { font-size:14px; font-weight:800; color:var(--primary); cursor:pointer; display:flex; align-items:center; gap:6px; }
+.nav-logo-icon { font-size:18px; }
+.nav-back { background:none; border:none; color:var(--primary); font-size:14px; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:4px; padding:6px 12px; border-radius:8px; transition:background 0.15s; }
+.nav-back:hover { background:var(--primary-pale); }
+
+/* VIEWS */
+.view { display:none; min-height:calc(100vh - 58px); }
+.view.active { display:block; }
+
+/* HOME */
+.home-hero {
+  background:linear-gradient(135deg,var(--primary-dark),var(--primary),var(--primary-light));
+  padding:52px 24px 44px; text-align:center; position:relative; overflow:hidden;
+}
+.home-hero::before { content:''; position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,0.05); }
+.home-hero::after { content:''; position:absolute; bottom:-80px; left:-30px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); }
+.home-hero-title { font-size:28px; font-weight:800; color:white; line-height:1.3; position:relative; z-index:1; }
+.home-hero-sub { font-size:15px; color:rgba(255,255,255,0.75); margin-top:8px; position:relative; z-index:1; }
+.wave-svg { display:block; margin-top:-2px; }
+
+.home-cards { max-width:480px; margin:0 auto; padding:20px 16px 60px; display:flex; flex-direction:column; gap:14px; }
+.home-card {
+  background:white; border-radius:20px; padding:24px 22px;
+  cursor:pointer; transition:all 0.22s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:var(--shadow); border:2px solid transparent;
+  display:flex; align-items:center; gap:18px;
+}
+.home-card:hover { transform:translateY(-4px); box-shadow:0 10px 30px rgba(144,27,1,0.14); border-color:var(--primary); }
+.home-card:active { transform:scale(0.98); }
+.home-card-icon { font-size:34px; flex-shrink:0; }
+.home-card-title { font-size:17px; font-weight:800; margin-bottom:3px; }
+.home-card-desc { font-size:13px; color:var(--text-sub); }
+.home-card-arrow { margin-left:auto; color:var(--text-sub); font-size:18px; flex-shrink:0; }
+
+/* CONTAINER */
+.container { max-width:640px; margin:0 auto; padding:24px 16px 80px; }
+
+/* PAGE HEADER */
+.page-header { margin-bottom:22px; }
+.page-title { font-size:22px; font-weight:800; margin-bottom:4px; }
+.page-sub { font-size:14px; color:var(--text-sub); }
+
+/* SURVEY CARD WITH MENU */
+.survey-card-wrap { position:relative; margin-bottom:12px; }
+
+.survey-card {
+  background:white; border-radius:var(--radius); padding:20px;
+  cursor:pointer;
+  box-shadow:var(--shadow); border:2px solid transparent;
+  transition:all 0.22s cubic-bezier(.34,1.56,.64,1);
+  /* 오른쪽에 삼단바 버튼 공간 확보 */
+  padding-right:56px;
+}
+.survey-card:hover { border-color:var(--primary); transform:translateY(-2px); box-shadow:0 8px 24px rgba(144,27,1,0.12); }
+.survey-card:active { transform:scale(0.99); }
+.survey-card-title { font-size:16px; font-weight:800; margin-bottom:6px; }
+.survey-card-desc { font-size:13px; color:var(--text-sub); margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.survey-card-meta { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+
+/* 삼단바 버튼 */
+.menu-btn {
+  position:absolute; top:50%; right:14px; transform:translateY(-50%);
+  width:36px; height:36px; border-radius:10px;
+  background:transparent; border:none; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  transition:background 0.15s; z-index:2;
+}
+.menu-btn:hover { background:var(--primary-pale); }
+.menu-btn span {
+  display:block; width:18px; height:2px;
+  background:var(--text-sub); border-radius:99px; transition:background 0.15s;
+}
+.menu-btn:hover span { background:var(--primary); }
+
+/* 드롭다운 메뉴 */
+.dropdown {
+  display:none; position:absolute; top:50px; right:14px; z-index:100;
+  background:white; border-radius:var(--radius-sm); min-width:160px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.14); border:1.5px solid var(--border);
+  overflow:hidden;
+  animation:popIn 0.18s cubic-bezier(.34,1.56,.64,1);
+}
+.dropdown.open { display:block; }
+.dropdown-item {
+  display:flex; align-items:center; gap:10px;
+  padding:13px 16px; font-size:14px; font-weight:600;
+  cursor:pointer; transition:background 0.12s; border:none; background:none; width:100%;
+  font-family:inherit; color:var(--text);
+}
+.dropdown-item:hover { background:var(--primary-pale); color:var(--primary); }
+.dropdown-item.danger:hover { background:#fff0f0; color:#e53e3e; }
+.dropdown-divider { height:1px; background:var(--border); margin:2px 0; }
+
+/* TAG */
+.tag { font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; }
+.tag-primary { background:var(--primary-pale); color:var(--primary); }
+.tag-gray { background:#f2f2f7; color:var(--text-sub); }
+.tag-green { background:#e8f8ee; color:#22c55e; }
+.tag-orange { background:#fff4ec; color:#f97316; }
+.tag-ended { background:#f2f2f7; color:#999; }
+
+/* EMPTY */
+.empty-state { text-align:center; padding:60px 24px; }
+.empty-icon { font-size:52px; margin-bottom:14px; }
+.empty-title { font-size:16px; font-weight:700; margin-bottom:6px; }
+.empty-sub { font-size:13px; color:var(--text-sub); }
+
+/* CARD */
+.card { background:white; border-radius:var(--radius); padding:22px; margin-bottom:14px; box-shadow:var(--shadow); }
+.card-title { font-size:15px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:6px; }
+
+/* FORM */
+.form-group { margin-bottom:18px; }
+.form-group:last-child { margin-bottom:0; }
+.form-label { font-size:13px; font-weight:700; margin-bottom:7px; display:block; color:var(--text-sub); }
+.req { color:var(--primary); }
+.form-input, .form-textarea, .form-select {
+  width:100%; padding:13px 15px;
+  border:2px solid var(--border); border-radius:var(--radius-sm);
+  font-size:15px; font-family:inherit; color:var(--text);
+  outline:none; transition:border-color 0.2s, box-shadow 0.2s;
+  background:white; -webkit-appearance:none;
+}
+.form-input:focus, .form-textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(144,27,1,0.08); }
+.form-textarea { resize:vertical; min-height:80px; }
+.form-select {
+  appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%23901b01'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 14px center; cursor:pointer;
+}
+.form-select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(144,27,1,0.08); }
+
+/* DATE ROW */
+.date-row { display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:end; }
+.date-sep { font-weight:700; color:var(--text-sub); text-align:center; padding-bottom:14px; }
+
+/* BUTTONS */
+.btn {
+  padding:13px 22px; border-radius:var(--radius-sm);
+  font-size:15px; font-weight:700; border:none; cursor:pointer;
+  transition:all 0.22s cubic-bezier(.34,1.56,.64,1); font-family:inherit;
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+}
+.btn:hover { transform:translateY(-2px); }
+.btn:active { transform:scale(0.97); }
+.btn-primary { background:var(--primary); color:white; box-shadow:0 4px 14px rgba(144,27,1,0.25); }
+.btn-primary:hover { background:var(--primary-light); }
+.btn-outline { background:white; color:var(--primary); border:2px solid var(--primary); }
+.btn-outline:hover { background:var(--primary-pale); }
+.btn-ghost { background:#f2f2f7; color:var(--text); }
+.btn-ghost:hover { background:#e5e5ea; }
+.btn-danger-solid { background:#e53e3e; color:white; box-shadow:0 4px 14px rgba(229,62,62,0.25); }
+.btn-danger-solid:hover { background:#c53030; }
+.btn-full { width:100%; }
+.btn-sm { padding:7px 14px; font-size:13px; border-radius:8px; }
+
+/* QUESTION BUILDER */
+.q-builder-card {
+  background:white; border-radius:var(--radius); padding:20px;
+  margin-bottom:12px; border:2px solid var(--border);
+  box-shadow:var(--shadow); transition:border-color 0.2s;
+}
+.q-builder-card:focus-within { border-color:var(--primary); }
+.q-builder-header { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+.q-num-badge {
+  background:var(--primary); color:white; font-size:12px; font-weight:800;
+  width:24px; height:24px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.q-type-chip { font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; margin-left:auto; }
+.chip-text { background:#e8f4fd; color:#0080d5; }
+.chip-sat { background:var(--primary-pale); color:var(--primary); }
+.q-preview { margin-top:12px; padding:10px; background:#f9f9fb; border-radius:8px; }
+.q-actions { display:flex; gap:8px; margin-top:14px; align-items:center; flex-wrap:wrap; }
+.add-q-wrap { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:6px; }
+
+/* TOGGLE */
+.toggle-wrap { display:flex; align-items:center; gap:8px; margin-left:auto; }
+.toggle-wrap-label { font-size:13px; font-weight:700; }
+.toggle-required { color:var(--primary); }
+.toggle-optional { color:var(--text-sub); }
+.toggle { position:relative; width:44px; height:24px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-slider { position:absolute; inset:0; background:#e5e5ea; border-radius:99px; cursor:pointer; transition:0.25s; }
+.toggle-slider:before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:white; border-radius:50%; transition:0.25s; box-shadow:0 1px 4px rgba(0,0,0,0.2); }
+.toggle input:checked + .toggle-slider { background:var(--primary); }
+.toggle input:checked + .toggle-slider:before { transform:translateX(20px); }
+
+/* SAT PREVIEW */
+.sat-preview { display:flex; gap:6px; flex-wrap:wrap; }
+.sat-chip { flex:1; min-width:calc(20% - 6px); display:flex; flex-direction:column; align-items:center; gap:3px; padding:8px 4px; border:2px solid var(--border); border-radius:8px; font-size:11px; font-weight:600; color:var(--text-sub); }
+.sat-chip-em { font-size:18px; }
+
+/* RADIO SURVEY */
+.radio-survey { display:flex; gap:8px; flex-wrap:wrap; }
+.radio-survey input { display:none; }
+.radio-survey label {
+  flex:1; min-width:calc(20% - 8px);
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  padding:10px 6px; border:2px solid var(--border); border-radius:var(--radius-sm);
+  cursor:pointer; font-size:12px; font-weight:600; color:var(--text-sub);
+  transition:all 0.18s cubic-bezier(.34,1.56,.64,1); user-select:none;
+}
+.radio-survey label .r-em { font-size:22px; transition:transform 0.15s; }
+.radio-survey label:hover { border-color:var(--primary); color:var(--primary); transform:scale(1.04); }
+.radio-survey label:hover .r-em { transform:scale(1.15); }
+.radio-survey input:checked + label { border-color:var(--primary); background:var(--primary-pale); color:var(--primary); font-weight:800; transform:scale(1.06); box-shadow:0 4px 14px rgba(144,27,1,0.12); }
+.radio-survey input:checked + label .r-em { transform:scale(1.2); }
+
+/* PROGRESS */
+.progress-wrap { margin-bottom:18px; }
+.progress-top { display:flex; justify-content:space-between; font-size:12px; color:var(--text-sub); font-weight:600; margin-bottom:6px; }
+.progress-bar { height:7px; background:var(--border); border-radius:99px; overflow:hidden; }
+.progress-fill { height:100%; background:linear-gradient(90deg,var(--primary),var(--accent)); border-radius:99px; transition:width 0.4s cubic-bezier(.34,1.56,.64,1); }
+
+/* STATS */
+.stat-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.stat-label { font-size:12px; width:62px; color:var(--text-sub); flex-shrink:0; }
+.stat-bar-outer { flex:1; height:9px; background:var(--border); border-radius:99px; overflow:hidden; }
+.stat-bar-inner { height:100%; background:linear-gradient(90deg,var(--primary),var(--accent)); border-radius:99px; transition:width 0.6s; }
+.stat-pct { font-size:12px; font-weight:700; color:var(--primary); width:32px; text-align:right; }
+.stat-count { font-size:12px; color:var(--text-sub); }
+.text-answer { background:var(--primary-pale); border-left:3px solid var(--primary); border-radius:8px; padding:10px 14px; margin-bottom:8px; font-size:14px; line-height:1.6; }
+
+/* MODAL */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:200; align-items:center; justify-content:center; backdrop-filter:blur(5px); padding:16px; }
+.modal-overlay.show { display:flex; }
+.modal { background:white; border-radius:24px; padding:30px; width:100%; max-width:380px; animation:popIn 0.28s cubic-bezier(.34,1.56,.64,1); }
+.modal-title { font-size:19px; font-weight:800; margin-bottom:6px; }
+.modal-sub { font-size:13px; color:var(--text-sub); margin-bottom:18px; }
+.modal-btn-row { display:flex; gap:10px; margin-top:14px; }
+.pw-error { color:#e53e3e; font-size:13px; margin-top:8px; font-weight:600; }
+.modal-close-btn { float:right; background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-sub); margin-top:-4px; padding:4px; border-radius:6px; transition:background 0.15s; }
+.modal-close-btn:hover { background:#f2f2f7; }
+
+/* DONE */
+.done-wrap { text-align:center; padding:70px 24px; }
+.done-emoji { font-size:68px; margin-bottom:18px; }
+.done-title { font-size:22px; font-weight:800; color:var(--primary); margin-bottom:10px; }
+.done-sub { font-size:15px; color:var(--text-sub); line-height:1.8; }
+
+/* DIVIDER */
+.divider { border:none; border-top:1.5px dashed var(--border); margin:18px 0; }
+
+/* SECTION LABEL */
+.section-label { font-size:12px; font-weight:800; color:var(--text-sub); letter-spacing:.5px; margin-bottom:10px; margin-top:20px; text-transform:uppercase; }
+
+/* STAT SUMMARY */
+.stat-summary { display:flex; gap:12px; margin-bottom:16px; }
+.stat-box { flex:1; background:white; border-radius:var(--radius-sm); padding:16px; text-align:center; box-shadow:var(--shadow); }
+.stat-box-num { font-size:28px; font-weight:800; color:var(--primary); }
+.stat-box-label { font-size:12px; color:var(--text-sub); margin-top:2px; }
+
+/* DELETE CONFIRM MODAL */
+.delete-modal-icon { font-size:44px; text-align:center; margin-bottom:12px; }
+
+@keyframes popIn {
+  from { opacity:0; transform:scale(0.88) translateY(16px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.anim { animation:popIn 0.3s cubic-bezier(.34,1.56,.64,1); }
+
+@media(max-width:520px) {
+  .home-hero-title { font-size:23px; }
+  .radio-survey label { font-size:11px; padding:8px 3px; }
+  .radio-survey label .r-em { font-size:18px; }
+  .date-row { grid-template-columns:1fr; }
+  .date-sep { display:none; }
+  .stat-summary { gap:8px; }
+  .stat-box-num { font-size:22px; }
+}
+@media(min-width:640px) {
+  .home-hero { padding:72px 24px 56px; }
+  .home-hero-title { font-size:34px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo" onclick="goHome()">
+    <span class="nav-logo-icon">🏫</span>
+    국립한국교통대학교
+  </div>
+  <button class="nav-back" id="navBack" style="display:none" onclick="goHome()">← 홈</button>
+</nav>
+
+<!-- HOME -->
+<div class="view active" id="view-home">
+  <div class="home-hero">
+    <div class="home-hero-title">설문조사 플랫폼 🎓</div>
+    <div class="home-hero-sub">원하는 메뉴를 선택해주세요</div>
+  </div>
+  <svg class="wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 36" preserveAspectRatio="none" style="height:36px;width:100%;background:var(--bg);">
+    <path d="M0,18 C360,54 1080,-18 1440,18 L1440,0 L0,0 Z" fill="#901b01"/>
+  </svg>
+  <div class="home-cards">
+    <div class="home-card" onclick="nav('participate')">
+      <div class="home-card-icon">📋</div>
+      <div>
+        <div class="home-card-title">설문 참여하기</div>
+        <div class="home-card-desc">현재 진행 중인 설문에 참여하세요</div>
+      </div>
+      <div class="home-card-arrow">›</div>
+    </div>
+    <div class="home-card" onclick="nav('create')">
+      <div class="home-card-icon">✏️</div>
+      <div>
+        <div class="home-card-title">설문 만들기</div>
+        <div class="home-card-desc">새로운 설문을 직접 제작해보세요</div>
+      </div>
+      <div class="home-card-arrow">›</div>
+    </div>
+    <div class="home-card" onclick="nav('results')">
+      <div class="home-card-icon">📊</div>
+      <div>
+        <div class="home-card-title">설문 결과 확인하기</div>
+        <div class="home-card-desc">진행 중이거나 종료된 설문의 결과를 확인하세요</div>
+      </div>
+      <div class="home-card-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTICIPATE LIST -->
+<div class="view" id="view-participate">
+  <div class="container anim">
+    <div class="page-header">
+      <div class="page-title">📋 설문 참여하기</div>
+      <div class="page-sub">참여하고 싶은 설문을 선택하세요</div>
+    </div>
+    <div id="participateList"></div>
+  </div>
+</div>
+
+<!-- SURVEY TAKING -->
+<div class="view" id="view-survey">
+  <div class="container anim" id="surveyContent"></div>
+</div>
+
+<!-- CREATE / EDIT -->
+<div class="view" id="view-create">
+  <div class="container anim">
+    <div class="page-header">
+      <div class="page-title" id="createPageTitle">✏️ 설문 만들기</div>
+      <div class="page-sub" id="createPageSub">설문 정보를 입력하고 질문을 추가하세요</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📝 기본 정보</div>
+      <div class="form-group">
+        <label class="form-label">설문 제목 <span class="req">*</span></label>
+        <input class="form-input" id="cTitle" placeholder="EX) 대학생 학생식당 만족도 조사" maxlength="60">
+      </div>
+      <div class="form-group">
+        <label class="form-label">설문 설명</label>
+        <textarea class="form-textarea" id="cDesc" placeholder="설문의 목적이나 안내사항을 간단히 적어주세요."></textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 설문 기간 <span style="font-size:12px;font-weight:500;color:var(--text-sub)">00시 기준</span></div>
+      <div class="date-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">시작일 <span class="req">*</span></label>
+          <input type="date" class="form-input" id="cStart">
+        </div>
+        <div class="date-sep">~</div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">종료일 <span class="req">*</span></label>
+          <input type="date" class="form-input" id="cEnd">
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">❓ 질문 목록</div>
+      <div id="questionList"></div>
+      <div id="noQMsg" style="text-align:center;color:var(--text-sub);font-size:14px;padding:16px 0 4px;">질문을 추가해주세요</div>
+      <div class="add-q-wrap" style="margin-top:14px">
+        <button class="btn btn-outline btn-sm" onclick="addQ('text')">＋ 문답형</button>
+        <button class="btn btn-ghost btn-sm" style="border:2px solid var(--border)" onclick="addQ('satisfaction')">＋ 만족도 조사형</button>
+      </div>
+    </div>
+    <div class="card" id="pwCard">
+      <div class="card-title">🔐 통계 확인 비밀번호</div>
+      <div class="form-group">
+        <label class="form-label">비밀번호 <span class="req">*</span></label>
+        <input type="password" class="form-input" id="cPw" placeholder="결과 확인 시 사용할 비밀번호">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">비밀번호 확인 <span class="req">*</span></label>
+        <input type="password" class="form-input" id="cPw2" placeholder="비밀번호를 다시 입력해주세요">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" style="font-size:16px;padding:16px" id="createSubmitBtn" onclick="publishSurvey()">🚀 설문 게시하기</button>
+  </div>
+</div>
+
+<!-- RESULTS LIST -->
+<div class="view" id="view-results">
+  <div class="container anim">
+    <div class="page-header">
+      <div class="page-title">📊 설문 결과 확인</div>
+      <div class="page-sub">비밀번호 입력 후 결과를 확인하세요</div>
+    </div>
+    <div id="resultsList"></div>
+  </div>
+</div>
+
+<!-- RESULTS DETAIL -->
+<div class="view" id="view-results-detail">
+  <div class="container anim" id="resultsDetailContent"></div>
+</div>
+
+<!-- ────────────────────────────────────────
+     PASSWORD MODAL (결과 확인용)
+──────────────────────────────────────── -->
+<div class="modal-overlay" id="pwModal" onclick="closePwOverlay(event)">
+  <div class="modal">
+    <button class="modal-close-btn" onclick="closePwModal()">✕</button>
+    <div class="modal-title">🔐 비밀번호 확인</div>
+    <div class="modal-sub">설문 결과를 확인하려면 비밀번호를 입력하세요</div>
+    <input type="password" class="form-input" id="pwInput" placeholder="비밀번호" onkeydown="if(event.key==='Enter')submitPw()">
+    <div class="pw-error" id="pwError" style="display:none">❌ 비밀번호가 틀렸습니다.</div>
+    <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="submitPw()">확인</button>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     관리 비밀번호 모달 (수정/삭제 공통)
+──────────────────────────────────────── -->
+<div class="modal-overlay" id="mgmtPwModal" onclick="closeMgmtOverlay(event)">
+  <div class="modal">
+    <button class="modal-close-btn" onclick="closeMgmtModal()">✕</button>
+    <div class="modal-title" id="mgmtModalTitle">🔐 관리자 인증</div>
+    <div class="modal-sub">설문 제작자 비밀번호 또는 관리자 비밀번호를 입력하세요</div>
+    <input type="password" class="form-input" id="mgmtPwInput" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')submitMgmtPw()">
+    <div class="pw-error" id="mgmtPwError" style="display:none">❌ 비밀번호가 틀렸습니다.</div>
+    <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="submitMgmtPw()">확인</button>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────
+     삭제 확인 모달
+──────────────────────────────────────── -->
+<div class="modal-overlay" id="deleteModal" onclick="closeDeleteOverlay(event)">
+  <div class="modal" style="text-align:center">
+    <div class="delete-modal-icon">🗑️</div>
+    <div class="modal-title" style="text-align:center">설문을 삭제할까요?</div>
+    <div class="modal-sub" style="text-align:center" id="deleteModalSub">삭제된 설문은 복구할 수 없습니다.<br>모든 응답 데이터도 함께 삭제됩니다.</div>
+    <div class="modal-btn-row">
+      <button class="btn btn-ghost btn-full" onclick="closeDeleteModal()">취소</button>
+      <button class="btn btn-danger-solid btn-full" onclick="confirmDelete()">삭제하기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// 관리자 비밀번호 (절대 변경 금지 라인 이외)
+// ─────────────────────────────────────────────
+const ADMIN_PW = 'weus4343!@';
+
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+function getSurveys() { return JSON.parse(localStorage.getItem('ktx_surveys') || '[]'); }
+function saveSurveys(l) { localStorage.setItem('ktx_surveys', JSON.stringify(l)); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─────────────────────────────────────────────
+// DATE
+// ─────────────────────────────────────────────
+function today() { return new Date().toISOString().slice(0,10); }
+function isActive(s) { const t=today(); return s.startDate<=t && t<=s.endDate; }
+function isEnded(s)  { return today()>s.endDate; }
+function fmtDate(d)  { return d ? d.replace(/-/g,'.') : ''; }
+
+// ─────────────────────────────────────────────
+// NAV
+// ─────────────────────────────────────────────
+function nav(view) {
+  closeAllDropdowns();
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+  document.getElementById('navBack').style.display = view === 'home' ? 'none' : 'flex';
+  window.scrollTo(0, 0);
+  if (view === 'participate') renderParticipate();
+  if (view === 'results')     renderResults();
+  if (view === 'create' && !editingId) initCreate();
+}
+function goHome() { editingId = null; nav('home'); }
+
+// 드롭다운 전체 닫기
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.menu-btn') && !e.target.closest('.dropdown')) closeAllDropdowns();
+});
+
+// ─────────────────────────────────────────────
+// PARTICIPATE LIST (삼단바 포함)
+// ─────────────────────────────────────────────
+function renderParticipate() {
+  const list = getSurveys().filter(isActive);
+  const el = document.getElementById('participateList');
+  if (!list.length) {
+    el.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <div class="empty-title">진행 중인 설문이 없습니다</div>
+      <div class="empty-sub">설문 만들기로 새 설문을 추가해보세요</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = list.map(s => `
+    <div class="survey-card-wrap">
+      <!-- 설문 카드 -->
+      <div class="survey-card" onclick="startSurvey('${s.id}')">
+        <div class="survey-card-title">${esc(s.title)}</div>
+        ${s.description ? `<div class="survey-card-desc">${esc(s.description)}</div>` : ''}
+        <div class="survey-card-meta">
+          <span class="tag tag-green">진행중</span>
+          <span class="tag tag-gray">❓ ${s.questions.length}개 질문</span>
+          <span class="tag tag-gray">📅 ~${fmtDate(s.endDate)}</span>
+          <span class="tag tag-gray">👥 ${(s.responses||[]).length}명</span>
+        </div>
+      </div>
+
+      <!-- 삼단바 버튼 -->
+      <button class="menu-btn" onclick="toggleDropdown(event,'dd_${s.id}')" title="관리">
+        <span></span><span></span><span></span>
+      </button>
+
+      <!-- 드롭다운 -->
+      <div class="dropdown" id="dd_${s.id}">
+        <button class="dropdown-item" onclick="mgmtAction(event,'edit','${s.id}')">
+          ✏️ 설문 수정하기
+        </button>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item danger" onclick="mgmtAction(event,'delete','${s.id}')">
+          🗑️ 설문 삭제하기
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleDropdown(e, ddId) {
+  e.stopPropagation();
+  const dd = document.getElementById(ddId);
+  const wasOpen = dd.classList.contains('open');
+  closeAllDropdowns();
+  if (!wasOpen) dd.classList.add('open');
+}
+
+// ─────────────────────────────────────────────
+// 관리 액션 (수정 / 삭제) – 비밀번호 인증
+// ─────────────────────────────────────────────
+let mgmtTargetId   = null;
+let mgmtTargetAct  = null; // 'edit' | 'delete'
+
+function mgmtAction(e, action, id) {
+  e.stopPropagation();
+  closeAllDropdowns();
+  mgmtTargetId  = id;
+  mgmtTargetAct = action;
+  // 모달 텍스트
+  document.getElementById('mgmtModalTitle').textContent =
+    action === 'edit' ? '✏️ 설문 수정 인증' : '🗑️ 설문 삭제 인증';
+  document.getElementById('mgmtPwInput').value = '';
+  document.getElementById('mgmtPwError').style.display = 'none';
+  document.getElementById('mgmtPwModal').classList.add('show');
+  setTimeout(() => document.getElementById('mgmtPwInput').focus(), 100);
+}
+
+function closeMgmtModal()  { document.getElementById('mgmtPwModal').classList.remove('show'); }
+function closeMgmtOverlay(e) { if(e.target===document.getElementById('mgmtPwModal')) closeMgmtModal(); }
+
+function submitMgmtPw() {
+  const pw = document.getElementById('mgmtPwInput').value;
+  const s  = getSurveys().find(x => x.id === mgmtTargetId);
+  if (!s) return;
+
+  // 제작자 비밀번호 OR 관리자 비밀번호
+  if (pw === s.password || pw === ADMIN_PW) {
+    closeMgmtModal();
+    if (mgmtTargetAct === 'edit') {
+      openEdit(s);
+    } else {
+      openDeleteConfirm(s);
+    }
+  } else {
+    document.getElementById('mgmtPwError').style.display = 'block';
+    document.getElementById('mgmtPwInput').value = '';
+    document.getElementById('mgmtPwInput').focus();
+  }
+}
+
+// ─────────────────────────────────────────────
+// DELETE
+// ─────────────────────────────────────────────
+let deleteTargetId = null;
+
+function openDeleteConfirm(s) {
+  deleteTargetId = s.id;
+  document.getElementById('deleteModalSub').innerHTML =
+    `<strong>"${esc(s.title)}"</strong> 설문을 삭제합니다.<br>삭제된 데이터는 복구할 수 없습니다.`;
+  document.getElementById('deleteModal').classList.add('show');
+}
+function closeDeleteModal()   { document.getElementById('deleteModal').classList.remove('show'); }
+function closeDeleteOverlay(e){ if(e.target===document.getElementById('deleteModal')) closeDeleteModal(); }
+
+function confirmDelete() {
+  const list = getSurveys().filter(x => x.id !== deleteTargetId);
+  saveSurveys(list);
+  closeDeleteModal();
+  renderParticipate();
+  // 토스트 느낌
+  showToast('🗑️ 설문이 삭제되었습니다');
+}
+
+// ─────────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
+    background:#1a1a1a;color:#fff;padding:12px 22px;border-radius:99px;
+    font-size:14px;font-weight:700;z-index:999;white-space:nowrap;
+    box-shadow:0 4px 20px rgba(0,0,0,0.25);animation:popIn 0.25s ease;`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+// ─────────────────────────────────────────────
+// SURVEY TAKING
+// ─────────────────────────────────────────────
+let activeSurveyId = null;
+
+function startSurvey(id) {
+  activeSurveyId = id;
+  const s = getSurveys().find(x => x.id === id);
+  if (!s) return;
+  nav('survey');
+  buildSurveyForm(s);
+}
+
+function buildSurveyForm(s) {
+  let html = `
+    <div class="progress-wrap">
+      <div class="progress-top"><span>진행률</span><span id="spct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="sfill" style="width:0%"></div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div style="font-size:19px;font-weight:800;margin-bottom:${s.description?'8px':'0'}">${esc(s.title)}</div>
+      ${s.description ? `<div style="font-size:14px;color:var(--text-sub);line-height:1.7">${esc(s.description)}</div>` : ''}
+    </div>
+    <form id="takeForm" onsubmit="return doSubmit(event)">
+  `;
+  s.questions.forEach((q, i) => {
+    html += `<div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:14px">
+        <span class="q-num-badge">${i+1}</span>
+        <span style="font-size:15px;font-weight:700;line-height:1.4">
+          ${esc(q.label)}
+          ${q.required
+            ? '<span style="color:var(--primary);margin-left:2px">*</span>'
+            : '<span style="font-size:11px;color:#bbb;font-weight:500;margin-left:4px">(선택)</span>'}
+        </span>
+      </div>`;
+    if (q.type === 'satisfaction') {
+      html += `<div class="radio-survey">
+        <input type="radio" name="q${i}" id="q${i}_5" value="5" ${q.required?'required':''} onchange="calcProgress(${s.questions.length})">
+        <label for="q${i}_5"><span class="r-em">🤩</span>매우만족</label>
+        <input type="radio" name="q${i}" id="q${i}_4" value="4" onchange="calcProgress(${s.questions.length})">
+        <label for="q${i}_4"><span class="r-em">😊</span>만족</label>
+        <input type="radio" name="q${i}" id="q${i}_3" value="3" onchange="calcProgress(${s.questions.length})">
+        <label for="q${i}_3"><span class="r-em">😐</span>보통</label>
+        <input type="radio" name="q${i}" id="q${i}_2" value="2" onchange="calcProgress(${s.questions.length})">
+        <label for="q${i}_2"><span class="r-em">😞</span>불만족</label>
+        <input type="radio" name="q${i}" id="q${i}_1" value="1" onchange="calcProgress(${s.questions.length})">
+        <label for="q${i}_1"><span class="r-em">😤</span>매우불만족</label>
+      </div>`;
+    } else {
+      html += `<textarea class="form-textarea" name="q${i}" placeholder="답변을 입력하세요" ${q.required?'required':''} oninput="calcProgress(${s.questions.length})"></textarea>`;
+    }
+    html += `</div>`;
+  });
+  html += `<button type="submit" class="btn btn-primary btn-full" style="font-size:16px;padding:16px">✨ 설문 제출하기</button></form>`;
+  document.getElementById('surveyContent').innerHTML = html;
+}
+
+function calcProgress(total) {
+  const form = document.getElementById('takeForm');
+  if (!form) return;
+  let done = 0;
+  for (let i = 0; i < total; i++) {
+    const radios = form.querySelectorAll(`input[type="radio"][name="q${i}"]`);
+    if (radios.length) {
+      if (form.querySelector(`input[name="q${i}"]:checked`)) done++;
+    } else {
+      const ta = form.querySelector(`[name="q${i}"]`);
+      if (ta && ta.value.trim()) done++;
+    }
+  }
+  const pct = Math.round(done / total * 100);
+  const f = document.getElementById('sfill');
+  const p = document.getElementById('spct');
+  if (f) f.style.width = pct + '%';
+  if (p) p.textContent = pct + '%';
+}
+
+function doSubmit(e) {
+  e.preventDefault();
+  const form = e.target;
+  const surveys = getSurveys();
+  const idx = surveys.findIndex(x => x.id === activeSurveyId);
+  if (idx < 0) return false;
+  const s = surveys[idx];
+  const resp = { time: new Date().toLocaleString('ko-KR') };
+  s.questions.forEach((q, i) => {
+    const radios = form.querySelectorAll(`input[type="radio"][name="q${i}"]`);
+    if (radios.length) {
+      const chk = form.querySelector(`input[name="q${i}"]:checked`);
+      resp['q'+i] = chk ? chk.value : '';
+    } else {
+      const ta = form.querySelector(`[name="q${i}"]`);
+      resp['q'+i] = ta ? ta.value : '';
+    }
+  });
+  if (!s.responses) s.responses = [];
+  s.responses.push(resp);
+  saveSurveys(surveys);
+  document.getElementById('surveyContent').innerHTML = `
+    <div class="done-wrap anim">
+      <div class="done-emoji">🎉</div>
+      <div class="done-title">제출 완료!</div>
+      <div class="done-sub">소중한 의견 감사합니다.<br>여러분의 응답이 큰 도움이 됩니다 💪</div>
+      <button class="btn btn-primary" style="margin-top:32px" onclick="goHome()">홈으로 돌아가기</button>
+    </div>
+  `;
+  return false;
+}
+
+// ─────────────────────────────────────────────
+// CREATE
+// ─────────────────────────────────────────────
+let questions  = [];
+let editingId  = null;
+
+function initCreate() {
+  editingId = null;
+  questions = [];
+  document.getElementById('cTitle').value = '';
+  document.getElementById('cDesc').value  = '';
+  document.getElementById('cPw').value    = '';
+  document.getElementById('cPw2').value   = '';
+  document.getElementById('pwCard').style.display = 'block';
+  document.getElementById('createPageTitle').textContent = '✏️ 설문 만들기';
+  document.getElementById('createPageSub').textContent  = '설문 정보를 입력하고 질문을 추가하세요';
+  document.getElementById('createSubmitBtn').textContent = '🚀 설문 게시하기';
+  const t = today();
+  const e = new Date(); e.setDate(e.getDate()+14);
+  document.getElementById('cStart').value = t;
+  document.getElementById('cEnd').value   = e.toISOString().slice(0,10);
+  renderQList();
+}
+
+// ─────────────────────────────────────────────
+// EDIT – 기존 설문 불러오기
+// ─────────────────────────────────────────────
+function openEdit(s) {
+  editingId = s.id;
+  questions = s.questions.map(q => ({...q}));
+  document.getElementById('cTitle').value = s.title;
+  document.getElementById('cDesc').value  = s.description || '';
+  document.getElementById('cStart').value = s.startDate;
+  document.getElementById('cEnd').value   = s.endDate;
+  // 수정 시 비밀번호 칸 숨기기 (유지)
+  document.getElementById('cPw').value    = '';
+  document.getElementById('cPw2').value   = '';
+  document.getElementById('pwCard').style.display = 'none';
+  document.getElementById('createPageTitle').textContent = '✏️ 설문 수정하기';
+  document.getElementById('createPageSub').textContent  = '내용을 수정한 뒤 저장하세요 (기존 응답 데이터는 유지됩니다)';
+  document.getElementById('createSubmitBtn').textContent = '💾 수정 내용 저장하기';
+  renderQList();
+  nav('create');
+  // 뷰 전환 후 이미 initCreate 호출 방지
+}
+
+function addQ(type) {
+  questions.push({ id: uid(), type, label: '', required: true });
+  renderQList();
+}
+function removeQ(id) { questions = questions.filter(q => q.id !== id); renderQList(); }
+function setQLabel(id, val) { const q = questions.find(x => x.id === id); if (q) q.label = val; }
+function toggleReq(id, val) { const q = questions.find(x => x.id === id); if (q) { q.required = val; renderQList(); } }
+
+function renderQList() {
+  const el = document.getElementById('questionList');
+  const nm = document.getElementById('noQMsg');
+  if (!questions.length) { el.innerHTML = ''; nm.style.display = 'block'; return; }
+  nm.style.display = 'none';
+  el.innerHTML = questions.map((q, i) => `
+    <div class="q-builder-card">
+      <div class="q-builder-header">
+        <span class="q-num-badge">${i+1}</span>
+        <span style="font-size:13px;font-weight:700;color:var(--text-sub)">${q.type === 'text' ? '문답형' : '만족도 조사형'}</span>
+        <span class="q-type-chip ${q.type === 'text' ? 'chip-text' : 'chip-sat'}">${q.type === 'text' ? '📝 주관식' : '⭐ 만족도'}</span>
+      </div>
+      <input class="form-input" placeholder="질문 내용을 입력하세요"
+        value="${esc(q.label)}"
+        oninput="setQLabel('${q.id}', this.value)">
+      ${q.type === 'satisfaction' ? `
+        <div class="q-preview" style="margin-top:12px">
+          <div class="sat-preview">
+            <div class="sat-chip"><span class="sat-chip-em">🤩</span>매우만족</div>
+            <div class="sat-chip"><span class="sat-chip-em">😊</span>만족</div>
+            <div class="sat-chip"><span class="sat-chip-em">😐</span>보통</div>
+            <div class="sat-chip"><span class="sat-chip-em">😞</span>불만족</div>
+            <div class="sat-chip"><span class="sat-chip-em">😤</span>매우불만족</div>
+          </div>
+        </div>` : `
+        <div class="q-preview" style="margin-top:12px">
+          <div style="font-size:13px;color:#bbb;font-style:italic">주관식 텍스트 입력란</div>
+        </div>`}
+      <div class="q-actions">
+        <button class="btn btn-sm" style="background:#fff0f0;color:#e53e3e;border:2px solid #fecaca" onclick="removeQ('${q.id}')">🗑️ 삭제</button>
+        <div class="toggle-wrap">
+          <span class="toggle-wrap-label ${q.required ? 'toggle-required' : 'toggle-optional'}">${q.required ? '필수' : '선택'}</span>
+          <label class="toggle">
+            <input type="checkbox" ${q.required ? 'checked' : ''} onchange="toggleReq('${q.id}', this.checked)">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function publishSurvey() {
+  const title = document.getElementById('cTitle').value.trim();
+  const desc  = document.getElementById('cDesc').value.trim();
+  const start = document.getElementById('cStart').value;
+  const end   = document.getElementById('cEnd').value;
+  const pw    = document.getElementById('cPw').value;
+  const pw2   = document.getElementById('cPw2').value;
+
+  if (!title)            { alert('⚠️ 설문 제목을 입력해주세요.'); return; }
+  if (!start || !end)    { alert('⚠️ 설문 기간을 설정해주세요.'); return; }
+  if (start > end)       { alert('⚠️ 종료일이 시작일보다 앞설 수 없습니다.'); return; }
+  if (!questions.length) { alert('⚠️ 질문을 최소 1개 이상 추가해주세요.'); return; }
+  if (questions.some(q => !q.label.trim())) { alert('⚠️ 모든 질문 내용을 입력해주세요.'); return; }
+
+  const list = getSurveys();
+
+  if (editingId) {
+    // 수정 모드
+    const idx = list.findIndex(x => x.id === editingId);
+    if (idx < 0) return;
+    list[idx] = {
+      ...list[idx],
+      title, description: desc,
+      startDate: start, endDate: end,
+      questions: questions.map(q => ({...q})),
+    };
+    saveSurveys(list);
+    editingId = null;
+    showToast('✅ 설문이 수정되었습니다');
+  } else {
+    // 신규
+    if (!pw)        { alert('⚠️ 통계 확인 비밀번호를 설정해주세요.'); return; }
+    if (pw !== pw2) { alert('⚠️ 비밀번호가 일치하지 않습니다.'); return; }
+    list.push({
+      id: uid(), title, description: desc,
+      startDate: start, endDate: end,
+      password: pw,
+      questions: questions.map(q => ({...q})),
+      responses: [],
+      createdAt: new Date().toISOString(),
+    });
+    saveSurveys(list);
+    showToast(`✅ 설문 "${title}"이(가) 게시되었습니다!`);
+  }
+  goHome();
+}
+
+// ─────────────────────────────────────────────
+// RESULTS LIST
+// ─────────────────────────────────────────────
+function renderResults() {
+  const all    = getSurveys();
+  const active = all.filter(isActive);
+  const ended  = all.filter(isEnded);
+  const el     = document.getElementById('resultsList');
+  if (!all.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">등록된 설문이 없습니다</div><div class="empty-sub">설문 만들기로 새 설문을 추가해보세요</div></div>`;
+    return;
+  }
+  let html = '';
+  if (active.length) {
+    html += `<div class="section-label">📊 진행 중인 설문 (중간 통계)</div>`;
+    html += active.map(s => `
+      <div class="survey-card" onclick="openPwModal('${s.id}')">
+        <div class="survey-card-title">${esc(s.title)}</div>
+        ${s.description ? `<div class="survey-card-desc">${esc(s.description)}</div>` : ''}
+        <div class="survey-card-meta">
+          <span class="tag tag-green">진행중</span>
+          <span class="tag tag-gray">📅 ~${fmtDate(s.endDate)}</span>
+          <span class="tag tag-gray">👥 ${(s.responses||[]).length}명</span>
+          <span class="tag tag-primary">🔐 비밀번호 필요</span>
+        </div>
+      </div>`).join('');
+  }
+  if (ended.length) {
+    html += `<div class="section-label" style="margin-top:${active.length?'24px':'4px'}">✅ 종료된 설문</div>`;
+    html += ended.map(s => `
+      <div class="survey-card" onclick="openPwModal('${s.id}')">
+        <div class="survey-card-title">${esc(s.title)}</div>
+        ${s.description ? `<div class="survey-card-desc">${esc(s.description)}</div>` : ''}
+        <div class="survey-card-meta">
+          <span class="tag tag-ended">종료</span>
+          <span class="tag tag-gray">📅 ${fmtDate(s.startDate)}~${fmtDate(s.endDate)}</span>
+          <span class="tag tag-gray">👥 ${(s.responses||[]).length}명</span>
+          <span class="tag tag-primary">🔐 비밀번호 필요</span>
+        </div>
+      </div>`).join('');
+  }
+  if (!active.length && !ended.length) {
+    html = `<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-title">아직 시작되지 않은 설문만 있습니다</div><div class="empty-sub">설문 기간이 시작되면 여기에 표시됩니다</div></div>`;
+  }
+  el.innerHTML = html;
+}
+
+// ─────────────────────────────────────────────
+// PASSWORD MODAL (결과 확인)
+// ─────────────────────────────────────────────
+let targetId = null;
+
+function openPwModal(id) {
+  targetId = id;
+  document.getElementById('pwInput').value = '';
+  document.getElementById('pwError').style.display = 'none';
+  document.getElementById('pwModal').classList.add('show');
+  setTimeout(() => document.getElementById('pwInput').focus(), 100);
+}
+function closePwModal()  { document.getElementById('pwModal').classList.remove('show'); }
+function closePwOverlay(e){ if(e.target===document.getElementById('pwModal')) closePwModal(); }
+
+function submitPw() {
+  const pw = document.getElementById('pwInput').value;
+  const s  = getSurveys().find(x => x.id === targetId);
+  if (!s) return;
+  if (pw === s.password || pw === ADMIN_PW) {
+    closePwModal();
+    showDetail(s);
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+
+// ─────────────────────────────────────────────
+// RESULTS DETAIL
+// ─────────────────────────────────────────────
+const SLABELS = {5:'매우만족',4:'만족',3:'보통',2:'불만족',1:'매우불만족'};
+
+function showDetail(s) {
+  nav('results-detail');
+  const resps = s.responses || [];
+  const ended = isEnded(s);
+  let html = `
+    <div style="margin-bottom:18px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:12px;font-weight:700;color:${ended?'#999':'#22c55e'};background:${ended?'#f2f2f7':'#e8f8ee'};padding:3px 10px;border-radius:20px">${ended?'종료':'진행중'}</span>
+      </div>
+      <div class="page-title">${esc(s.title)}</div>
+      ${s.description ? `<div class="page-sub">${esc(s.description)}</div>` : ''}
+      <div style="font-size:13px;color:var(--text-sub);margin-top:6px">📅 ${fmtDate(s.startDate)} ~ ${fmtDate(s.endDate)}</div>
+    </div>
+    <div class="stat-summary">
+      <div class="stat-box"><div class="stat-box-num">${resps.length}</div><div class="stat-box-label">총 응답 수</div></div>
+      <div class="stat-box"><div class="stat-box-num">${s.questions.length}</div><div class="stat-box-label">질문 수</div></div>
+    </div>
+  `;
+  if (!resps.length) {
+    html += `<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">아직 응답이 없습니다</div></div>`;
+  } else {
+    s.questions.forEach((q, i) => {
+      html += `<div class="card" style="margin-bottom:12px">
+        <div style="font-size:15px;font-weight:800;margin-bottom:12px">
+          Q${i+1}. ${esc(q.label)}
+          <span style="font-size:11px;font-weight:500;color:var(--text-sub);margin-left:6px">${q.required?'필수':'선택'}</span>
+        </div>`;
+      if (q.type === 'satisfaction') {
+        const counts = {5:0,4:0,3:0,2:0,1:0};
+        resps.forEach(r => { if (r['q'+i]) counts[parseInt(r['q'+i])]++; });
+        const answered = resps.filter(r => r['q'+i]).length;
+        const avg = answered ? (Object.entries(counts).reduce((a,[k,v])=>a+parseInt(k)*v,0)/answered).toFixed(2) : '-';
+        html += `<div style="font-size:13px;color:var(--text-sub);margin-bottom:12px">평균 <strong style="color:var(--primary);font-size:16px">${avg}</strong> / 5점 &nbsp;·&nbsp; ${answered}명 응답</div>`;
+        [5,4,3,2,1].forEach(sc => {
+          const pct = answered ? Math.round(counts[sc]/answered*100) : 0;
+          html += `<div class="stat-row">
+            <span class="stat-label">${SLABELS[sc]}</span>
+            <div class="stat-bar-outer"><div class="stat-bar-inner" style="width:${pct}%"></div></div>
+            <span class="stat-pct">${pct}%</span>
+          </div><div class="stat-count" style="text-align:right;margin-top:-4px;margin-bottom:6px">${counts[sc]}명</div>`;
+        });
+      } else {
+        const answers = resps.map(r=>r['q'+i]).filter(v=>v&&v.trim());
+        html += `<div style="font-size:13px;color:var(--text-sub);margin-bottom:10px">${answers.length}명 응답</div>`;
+        if (answers.length) { html += answers.map(a=>`<div class="text-answer">${esc(a)}</div>`).join(''); }
+        else { html += `<div style="color:#bbb;font-size:13px">응답 없음</div>`; }
+      }
+      html += `</div>`;
+    });
+  }
+  html += `<button class="btn btn-ghost btn-full" style="margin-top:8px" onclick="nav('results')">← 목록으로</button>`;
+  document.getElementById('resultsDetailContent').innerHTML = html;
+}
+</script>
+</body>
+</html>
