@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -322,7 +323,7 @@ body { font-family:-apple-system,'Apple SD Gothic Neo','Pretendard','Noto Sans K
 <!-- HOME -->
 <div class="view active" id="view-home">
   <div class="home-hero">
-    <div class="home-hero-title">설문조사 플랫폼 🎓</div>
+    <div class="home-hero-title">설문조사 플랫폼</div>
     <div class="home-hero-sub">원하는 메뉴를 선택해주세요</div>
   </div>
   <svg class="wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 36" preserveAspectRatio="none" style="height:36px;width:100%;background:var(--bg);">
@@ -489,10 +490,16 @@ body { font-family:-apple-system,'Apple SD Gothic Neo','Pretendard','Noto Sans K
 
 <script>
 // ─────────────────────────────────────────────
-// 관리자 비밀번호 (절대 변경 금지 라인 이외)
+// 색깔 설정
 // ─────────────────────────────────────────────
-const ADMIN_PW = 'weus4343!@';
+const ADMIN_PW_HASH = '50de6b59de1049f44741cb124298b75d0b933334cb5baee50a7335b5789eb06f'
 
+async function hashPw(pw) {
+  const encoded = new TextEncoder().encode(pw);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+}
 // ─────────────────────────────────────────────
 // DATA
 // ─────────────────────────────────────────────
@@ -613,19 +620,15 @@ function mgmtAction(e, action, id) {
 function closeMgmtModal()  { document.getElementById('mgmtPwModal').classList.remove('show'); }
 function closeMgmtOverlay(e) { if(e.target===document.getElementById('mgmtPwModal')) closeMgmtModal(); }
 
-function submitMgmtPw() {
+async function submitMgmtPw() {
   const pw = document.getElementById('mgmtPwInput').value;
   const s  = getSurveys().find(x => x.id === mgmtTargetId);
   if (!s) return;
-
-  // 제작자 비밀번호 OR 관리자 비밀번호
-  if (pw === s.password || pw === ADMIN_PW) {
+  const h = await hashPw(pw);
+  if (pw === s.password || h === ADMIN_PW_HASH) {
     closeMgmtModal();
-    if (mgmtTargetAct === 'edit') {
-      openEdit(s);
-    } else {
-      openDeleteConfirm(s);
-    }
+    if (mgmtTargetAct === 'edit') { openEdit(s); }
+    else { openDeleteConfirm(s); }
   } else {
     document.getElementById('mgmtPwError').style.display = 'block';
     document.getElementById('mgmtPwInput').value = '';
@@ -985,11 +988,12 @@ function openPwModal(id) {
 function closePwModal()  { document.getElementById('pwModal').classList.remove('show'); }
 function closePwOverlay(e){ if(e.target===document.getElementById('pwModal')) closePwModal(); }
 
-function submitPw() {
+async function submitPw() {
   const pw = document.getElementById('pwInput').value;
   const s  = getSurveys().find(x => x.id === targetId);
   if (!s) return;
-  if (pw === s.password || pw === ADMIN_PW) {
+  const h = await hashPw(pw);
+  if (pw === s.password || h === ADMIN_PW_HASH) {
     closePwModal();
     showDetail(s);
   } else {
